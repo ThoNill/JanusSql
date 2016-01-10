@@ -17,7 +17,6 @@ public class PoolTest {
 			ConnectionProxyPool.shutdown();
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			fail("Ausnahme aufgetreten");
 		}
 	}

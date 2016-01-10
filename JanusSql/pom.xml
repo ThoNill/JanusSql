@@ -82,6 +82,17 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+			
 		</plugins>
+		
+		<testResources>
+			<testResource>
+				<directory>test</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
+		
 	</build>
 </project>
