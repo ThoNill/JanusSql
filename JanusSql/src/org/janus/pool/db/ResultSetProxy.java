@@ -8,18 +8,20 @@ public class ResultSetProxy extends SimpleResultSetProxy {
 	Statement stmt = null;
 	ConnectionProxy connection = null;
 	String stmtString;
-	boolean closeStatement = false;
 	boolean open = true;
 
-	public ResultSetProxy(ResultSet original, Statement stmt,
-			ConnectionProxy connection, String stmtString,
-			boolean closeStatement) {
+	public ResultSetProxy(ResultSet original,
+			ConnectionProxy connection, String stmtString,Statement stmt) {
 		super(original);
 		this.stmt = stmt;
 		this.connection = connection;
 		this.stmtString = stmtString;
-		this.closeStatement = closeStatement;
 		connection.add(this);
+	}
+	
+	public ResultSetProxy(ResultSet original,
+			ConnectionProxy connection, String stmtString) {
+		this(original,connection,stmtString,null);
 	}
 
 	@Override
@@ -28,7 +30,7 @@ public class ResultSetProxy extends SimpleResultSetProxy {
 			open = false;
 			connection.remove(this);
 			super.close();
-			if (closeStatement) {
+			if (stmt != null) {
 				stmt.close();
 			}
 		}

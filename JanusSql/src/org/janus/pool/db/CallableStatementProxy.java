@@ -25,14 +25,14 @@ public class CallableStatementProxy extends SimpleCallableStatementProxy {
 
 	@Override
 	public ResultSet executeQuery(String sql) throws SQLException {
-		return new ResultSetProxy(super.executeQuery(sql), this, connection,
-				sql, true);
+		return new ResultSetProxy(super.executeQuery(sql), connection, sql,
+				this);
 	}
 
 	@Override
 	public ResultSet executeQuery() throws SQLException {
-		return new ResultSetProxy(super.executeQuery(), this, connection,
-				stmtString, true);
+		return new ResultSetProxy(super.executeQuery(), connection, stmtString,
+				this);
 	}
 
 	public Statement getStmt() {

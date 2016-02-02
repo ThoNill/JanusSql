@@ -321,7 +321,7 @@ public class SimpleConnectionProxy extends DoubleLinkedListElement implements
 
 	@Override
 	public <T> T unwrap(Class<T> arg0) throws SQLException {
-		return original.unwrap(arg0);
+		return arg0.cast(original);
 	}
 
 }

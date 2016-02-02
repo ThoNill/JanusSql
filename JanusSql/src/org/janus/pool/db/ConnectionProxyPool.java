@@ -16,15 +16,18 @@ public class ConnectionProxyPool extends ShivaPool<ConnectionProxy> implements
 	static Logger log = Logger.getLogger("ConnectionProxyPool");
 
 	static HashMap<String, ConnectionProxyPool> pools = new HashMap<String, ConnectionProxyPool>();
-	String resName;
 
-	
+	private String resName;
 	private PrintWriter logWriter = null;
 	private int timeout;
 	
 	
 	private ConnectionProxyPool(int normalCount, int maxCount, String name) {
-		super(normalCount, maxCount, new ConnectionProxyFabric(name));
+		this(normalCount, maxCount, name,new ConnectionProxyFabric(name));
+	}
+	
+	private ConnectionProxyPool(int normalCount, int maxCount, String name, ConnectionProxyFabric fabric) {
+		super(normalCount, maxCount, fabric);
 		((ConnectionProxyFabric) shiva).setPool(this);
 		this.resName = name;
 		log.debug("erzeuge ConnectionProxyPool " + name);
@@ -32,6 +35,15 @@ public class ConnectionProxyPool extends ShivaPool<ConnectionProxy> implements
 
 	public String getResName() {
 		return resName;
+	}
+	
+	public static synchronized ConnectionProxy getConnection(String name,ConnectionProxyFabric fabric) {
+		ConnectionProxyPool pool = pools.get(name);
+		if (pool == null) {
+			pool = new ConnectionProxyPool(5, 20, name,fabric);
+			pools.put(name, pool);
+		}
+		return pool.create();
 	}
 
 	public static synchronized ConnectionProxy getConnection(String name) {

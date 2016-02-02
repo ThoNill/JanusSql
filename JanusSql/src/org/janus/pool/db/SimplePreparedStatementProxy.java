@@ -545,7 +545,7 @@ public class SimplePreparedStatementProxy extends DoubleLinkedListElement
 
 	@Override
 	public <T> T unwrap(Class<T> iface) throws SQLException {
-		return original.unwrap(iface);
+		return iface.cast(original);
 	}
 
 }

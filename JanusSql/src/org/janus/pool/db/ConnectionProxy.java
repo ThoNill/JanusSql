@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -13,6 +14,8 @@ import org.janus.lists.DoubleLinkedList;
 
 public class ConnectionProxy extends SimpleConnectionProxy {
 	static Logger log = Logger.getLogger("Database");
+	
+	HashMap<String,PreparedStatementProxy> preparedHash= new HashMap<>();
 
 	DoubleLinkedList<PreparedStatementProxy> preparedStatements = new DoubleLinkedList<PreparedStatementProxy>();
 	DoubleLinkedList<CallableStatementProxy> callableStatements = new DoubleLinkedList<CallableStatementProxy>();
@@ -167,8 +170,16 @@ public class ConnectionProxy extends SimpleConnectionProxy {
 
 	@Override
 	public PreparedStatement prepareStatement(String sql) throws SQLException {
-		return new PreparedStatementProxy(super.prepareStatement(sql), this,
-				sql);
+		synchronized (this) {
+			PreparedStatementProxy stmt = preparedHash.get(sql);
+			if (stmt == null) {
+				stmt = new PreparedStatementProxy(super.prepareStatement(sql), this,
+					sql);
+				preparedHash.put(sql, stmt);
+			}
+			return stmt;
+			
+		}
 	}
 
 	public void deepClose() throws SQLException {
@@ -186,6 +197,7 @@ public class ConnectionProxy extends SimpleConnectionProxy {
 
 			}
 		}
+		preparedHash.clear();
 	}
 
 	public void closeAllOpenCallableStatementProxys() {

@@ -4,11 +4,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public interface DBPool {
+	String getResName();	
 
-	public ConnectionProxy create();
+	ConnectionProxy create();
 
-	public void destroy(ConnectionProxy proxy);
+	void destroy(ConnectionProxy proxy);
 
-	public Connection createOriginal() throws SQLException;
+	Connection createOriginal() throws SQLException;
 
 }

@@ -31,16 +31,14 @@ public class PreparedStatementProxy extends SimplePreparedStatementProxy {
 	@Override
 	public ResultSet executeQuery(String sql) throws SQLException {
 		closeBisherigesResultSet();
-		bisher = new ResultSetProxy(super.executeQuery(sql), this, connection,
-				sql, false);
+		bisher = new ResultSetProxy(super.executeQuery(sql), connection,stmtString);
 		return bisher;
 	}
 
 	@Override
 	public ResultSet executeQuery() throws SQLException {
 		closeBisherigesResultSet();
-		bisher = new ResultSetProxy(super.executeQuery(), this, connection,
-				stmtString, false);
+		bisher = new ResultSetProxy(super.executeQuery(),connection,stmtString);
 		return bisher;
 	}
 

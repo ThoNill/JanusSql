@@ -21,8 +21,7 @@ public class StatementProxy extends SimpleStatementProxy {
 
 	@Override
 	public ResultSet executeQuery(String sql) throws SQLException {
-		return new ResultSetProxy(super.executeQuery(sql), this, connection,
-				sql, true);
+		return new ResultSetProxy(super.executeQuery(sql), connection,sql,this);
 	}
 
 	public Statement getStmt() {
