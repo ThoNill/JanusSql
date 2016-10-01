@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import org.apache.log4j.Logger;
 import org.janus.pool.db.ConnectionProxy;
 import org.janus.pool.db.ConnectionProxyPool;
 import org.junit.Test;
@@ -19,6 +20,8 @@ import test.janus.db.EmptyResultSet;
 import test.janus.db.EmptyStatement;
 
 public class CountTests {
+    private static final String UNERWARTETE_AUSNAHME = "unerwartete Ausnahme";
+    static  private final Logger LOG = Logger.getLogger(CountTests.class);
 	
 	@Test
 	public void testDB() {
@@ -30,6 +33,7 @@ public class CountTests {
 			assertFalse(((EmptyConnection)con.unwrap(EmptyConnection.class)).isOpen);
 
 		} catch (Exception ex) {
+		    LOG.error(UNERWARTETE_AUSNAHME,ex);
 			fail("Ausnahme aufgetreten");
 		}
 	}
@@ -47,6 +51,7 @@ public class CountTests {
 			ConnectionProxyPool.shutdown();
 
 		} catch (Exception ex) {
+		    LOG.error(UNERWARTETE_AUSNAHME,ex);
 			fail("Ausnahme aufgetreten");
 		}
 	}
@@ -65,6 +70,7 @@ public class CountTests {
 			ConnectionProxyPool.shutdown();
 
 		} catch (Exception ex) {
+		    LOG.error(UNERWARTETE_AUSNAHME,ex);
 			fail("Ausnahme aufgetreten");
 		}
 	}
@@ -85,6 +91,7 @@ public class CountTests {
 			ConnectionProxyPool.shutdown();
 
 		} catch (Exception ex) {
+		    LOG.error(UNERWARTETE_AUSNAHME,ex);
 			fail("Ausnahme aufgetreten");
 		}
 	}
@@ -107,6 +114,7 @@ public class CountTests {
 			assertFalse(((EmptyPreparedStatement)stmt.unwrap(EmptyPreparedStatement.class)).isOpen);
 
 		} catch (Exception ex) {
+		    LOG.error(UNERWARTETE_AUSNAHME,ex);
 			fail("Ausnahme aufgetreten");
 		}
 	}
@@ -132,6 +140,7 @@ public class CountTests {
 			assertFalse(((EmptyPreparedStatement)stmt.unwrap(EmptyPreparedStatement.class)).isOpen);
 
 		} catch (Exception ex) {
+		    LOG.error(UNERWARTETE_AUSNAHME,ex);
 			fail("Ausnahme aufgetreten");
 		}
 	}

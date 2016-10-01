@@ -5,300 +5,302 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.janus.lists.ActionOnObject;
 import org.janus.lists.DoubleLinkedList;
 
 public class ConnectionProxy extends SimpleConnectionProxy {
-	static Logger log = Logger.getLogger("Database");
-	
-	HashMap<String,PreparedStatementProxy> preparedHash= new HashMap<>();
 
-	DoubleLinkedList<PreparedStatementProxy> preparedStatements = new DoubleLinkedList<PreparedStatementProxy>();
-	DoubleLinkedList<CallableStatementProxy> callableStatements = new DoubleLinkedList<CallableStatementProxy>();
-	DoubleLinkedList<StatementProxy> statements = new DoubleLinkedList<StatementProxy>();
+    static private final Logger LOG = Logger.getLogger("Database");
 
-	DoubleLinkedList<ResultSetProxy> resultSets = new DoubleLinkedList<ResultSetProxy>();
+    HashMap<String, PreparedStatementProxy> preparedHash = new HashMap<>();
 
-	DBPool pool;
+    DoubleLinkedList<PreparedStatementProxy> preparedStatements = new DoubleLinkedList<PreparedStatementProxy>();
+    DoubleLinkedList<CallableStatementProxy> callableStatements = new DoubleLinkedList<CallableStatementProxy>();
+    DoubleLinkedList<StatementProxy> statements = new DoubleLinkedList<StatementProxy>();
 
-	public ConnectionProxy(Connection connection, DBPool pool) {
-		super(connection);
-		this.pool = pool;
-	}
+    DoubleLinkedList<ResultSetProxy> resultSets = new DoubleLinkedList<ResultSetProxy>();
 
-	public void add(PreparedStatementProxy e) {
-		preparedStatements.add(e);
-	}
+    DBPool pool;
 
-	public void remove(PreparedStatementProxy o) {
-		preparedStatements.remove(o);
-	}
+    public ConnectionProxy(Connection connection, DBPool pool) {
+        super(connection);
+        this.pool = pool;
+    }
 
-	public void add(CallableStatementProxy e) {
-		callableStatements.add(e);
-	}
+    public void add(PreparedStatementProxy e) {
+        preparedStatements.add(e);
+    }
 
-	public void remove(CallableStatementProxy o) {
-		callableStatements.remove(o);
-	}
+    public void remove(PreparedStatementProxy o) {
+        preparedStatements.remove(o);
+    }
 
-	public void add(StatementProxy e) {
-		statements.add(e);
-	}
+    public void add(CallableStatementProxy e) {
+        callableStatements.add(e);
+    }
 
-	public void remove(StatementProxy o) {
-		statements.remove(o);
-	}
+    public void remove(CallableStatementProxy o) {
+        callableStatements.remove(o);
+    }
 
-	public void add(ResultSetProxy e) {
-		resultSets.add(e);
-	}
+    public void add(StatementProxy e) {
+        statements.add(e);
+    }
 
-	public void remove(ResultSetProxy o) {
-		resultSets.remove(o);
-	}
+    public void remove(StatementProxy o) {
+        statements.remove(o);
+    }
 
-	public Vector<PreparedStatementProxy> getPereparedStatements() {
-		CollectElements<PreparedStatementProxy> collect = new CollectElements<PreparedStatementProxy>();
-		preparedStatements.perform(collect);
-		return collect.getElements();
-	}
+    public void add(ResultSetProxy e) {
+        resultSets.add(e);
+    }
 
-	public Vector<CallableStatementProxy> getCallableStatements() {
-		CollectElements<CallableStatementProxy> collect = new CollectElements<CallableStatementProxy>();
-		callableStatements.perform(collect);
-		return collect.getElements();
-	}
+    public void remove(ResultSetProxy o) {
+        resultSets.remove(o);
+    }
 
-	public Vector<StatementProxy> getStatements() {
-		CollectElements<StatementProxy> collect = new CollectElements<StatementProxy>();
-		statements.perform(collect);
-		return collect.getElements();
-	}
+    public List<PreparedStatementProxy> getPereparedStatements() {
+        CollectElements<PreparedStatementProxy> collect = new CollectElements<PreparedStatementProxy>();
+        preparedStatements.perform(collect);
+        return collect.getElements();
+    }
 
-	public Vector<ResultSetProxy> getResultSets() {
-		CollectElements<ResultSetProxy> collect = new CollectElements<ResultSetProxy>();
-		resultSets.perform(collect);
-		return collect.getElements();
-	}
+    public List<CallableStatementProxy> getCallableStatements() {
+        CollectElements<CallableStatementProxy> collect = new CollectElements<CallableStatementProxy>();
+        callableStatements.perform(collect);
+        return collect.getElements();
+    }
 
-	@Override
-	public void close() {
-		pool.destroy(this);
-	}
+    public List<StatementProxy> getStatements() {
+        CollectElements<StatementProxy> collect = new CollectElements<StatementProxy>();
+        statements.perform(collect);
+        return collect.getElements();
+    }
 
-	@Override
-	public Statement createStatement() throws SQLException {
-		return new StatementProxy(super.createStatement(), this);
-	}
+    public List<ResultSetProxy> getResultSets() {
+        CollectElements<ResultSetProxy> collect = new CollectElements<ResultSetProxy>();
+        resultSets.perform(collect);
+        return collect.getElements();
+    }
 
-	@Override
-	public Statement createStatement(int resultSetType,
-			int resultSetConcurrency, int resultSetHoldability)
-			throws SQLException {
-		return new StatementProxy(super.createStatement(resultSetType,
-				resultSetConcurrency, resultSetHoldability), this);
-	}
+    @Override
+    public void close() {
+        pool.destroy(this);
+    }
 
-	@Override
-	public Statement createStatement(int resultSetType, int resultSetConcurrency)
-			throws SQLException {
-		return new StatementProxy(super.createStatement(resultSetType,
-				resultSetConcurrency), this);
-	}
+    @Override
+    public Statement createStatement() throws SQLException {
+        return new StatementProxy(super.createStatement(), this);
+    }
 
-	@Override
-	public CallableStatement prepareCall(String sql, int resultSetType,
-			int resultSetConcurrency, int resultSetHoldability)
-			throws SQLException {
-		return new CallableStatementProxy(super.prepareCall(sql, resultSetType,
-				resultSetConcurrency, resultSetHoldability), this, sql);
-	}
+    @Override
+    public Statement createStatement(int resultSetType,
+            int resultSetConcurrency, int resultSetHoldability)
+            throws SQLException {
+        return new StatementProxy(super.createStatement(resultSetType,
+                resultSetConcurrency, resultSetHoldability), this);
+    }
 
-	@Override
-	public CallableStatement prepareCall(String sql, int resultSetType,
-			int resultSetConcurrency) throws SQLException {
-		return new CallableStatementProxy(super.prepareCall(sql, resultSetType,
-				resultSetConcurrency), this, sql);
-	}
+    @Override
+    public Statement createStatement(int resultSetType, int resultSetConcurrency)
+            throws SQLException {
+        return new StatementProxy(super.createStatement(resultSetType,
+                resultSetConcurrency), this);
+    }
 
-	@Override
-	public CallableStatement prepareCall(String sql) throws SQLException {
-		return new CallableStatementProxy(super.prepareCall(sql), this, sql);
-	}
+    @Override
+    public CallableStatement prepareCall(String sql, int resultSetType,
+            int resultSetConcurrency, int resultSetHoldability)
+            throws SQLException {
+        return new CallableStatementProxy(super.prepareCall(sql, resultSetType,
+                resultSetConcurrency, resultSetHoldability), this, sql);
+    }
 
-	@Override
-	public PreparedStatement prepareStatement(String sql, int resultSetType,
-			int resultSetConcurrency, int resultSetHoldability)
-			throws SQLException {
-		return new PreparedStatementProxy(super.prepareStatement(sql,
-				resultSetType, resultSetConcurrency, resultSetHoldability),
-				this, sql);
-	}
+    @Override
+    public CallableStatement prepareCall(String sql, int resultSetType,
+            int resultSetConcurrency) throws SQLException {
+        return new CallableStatementProxy(super.prepareCall(sql, resultSetType,
+                resultSetConcurrency), this, sql);
+    }
 
-	@Override
-	public PreparedStatement prepareStatement(String sql, int resultSetType,
-			int resultSetConcurrency) throws SQLException {
-		return new PreparedStatementProxy(super.prepareStatement(sql,
-				resultSetType, resultSetConcurrency), this, sql);
-	}
+    @Override
+    public CallableStatement prepareCall(String sql) throws SQLException {
+        return new CallableStatementProxy(super.prepareCall(sql), this, sql);
+    }
 
-	@Override
-	public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
-			throws SQLException {
-		return new PreparedStatementProxy(super.prepareStatement(sql,
-				autoGeneratedKeys), this, sql);
-	}
+    @Override
+    public PreparedStatement prepareStatement(String sql, int resultSetType,
+            int resultSetConcurrency, int resultSetHoldability)
+            throws SQLException {
+        return new PreparedStatementProxy(super.prepareStatement(sql,
+                resultSetType, resultSetConcurrency, resultSetHoldability),
+                this, sql);
+    }
 
-	@Override
-	public PreparedStatement prepareStatement(String sql, int[] columnIndexes)
-			throws SQLException {
-		return new PreparedStatementProxy(super.prepareStatement(sql,
-				columnIndexes), this, sql);
-	}
+    @Override
+    public PreparedStatement prepareStatement(String sql, int resultSetType,
+            int resultSetConcurrency) throws SQLException {
+        return new PreparedStatementProxy(super.prepareStatement(sql,
+                resultSetType, resultSetConcurrency), this, sql);
+    }
 
-	@Override
-	public PreparedStatement prepareStatement(String sql, String[] columnNames)
-			throws SQLException {
-		return new PreparedStatementProxy(super.prepareStatement(sql,
-				columnNames), this, sql);
-	}
+    @Override
+    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
+            throws SQLException {
+        return new PreparedStatementProxy(super.prepareStatement(sql,
+                autoGeneratedKeys), this, sql);
+    }
 
-	@Override
-	public PreparedStatement prepareStatement(String sql) throws SQLException {
-		synchronized (this) {
-			PreparedStatementProxy stmt = preparedHash.get(sql);
-			if (stmt == null) {
-				stmt = new PreparedStatementProxy(super.prepareStatement(sql), this,
-					sql);
-				preparedHash.put(sql, stmt);
-			}
-			return stmt;
-			
-		}
-	}
+    @Override
+    public PreparedStatement prepareStatement(String sql, int[] columnIndexes)
+            throws SQLException {
+        return new PreparedStatementProxy(super.prepareStatement(sql,
+                columnIndexes), this, sql);
+    }
 
-	public void deepClose() throws SQLException {
-		closeAllKindsOfProxys();
-		original.close();
-	}
+    @Override
+    public PreparedStatement prepareStatement(String sql, String[] columnNames)
+            throws SQLException {
+        return new PreparedStatementProxy(super.prepareStatement(sql,
+                columnNames), this, sql);
+    }
 
-	public void closeAllOpenPreparedStatementProxys() {
-		@SuppressWarnings("unchecked")
-		Vector<PreparedStatementProxy> clone = getPereparedStatements();
-		for (PreparedStatementProxy proxy : clone) {
-			try {
-				proxy.close();
-			} catch (SQLException ex) {
+    @Override
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+        synchronized (this) {
+            PreparedStatementProxy stmt = preparedHash.get(sql);
+            if (stmt == null) {
+                stmt = new PreparedStatementProxy(super.prepareStatement(sql),
+                        this, sql);
+                preparedHash.put(sql, stmt);
+            }
+            return stmt;
 
-			}
-		}
-		preparedHash.clear();
-	}
+        }
+    }
 
-	public void closeAllOpenCallableStatementProxys() {
-		Vector<CallableStatementProxy> clone = getCallableStatements();
-		for (CallableStatementProxy proxy : clone) {
-			try {
-				proxy.close();
-			} catch (SQLException ex) {
+    public void deepClose() throws SQLException {
+        closeAllKindsOfProxys();
+        original.close();
+    }
 
-			}
-		}
-	}
+    public void closeAllOpenPreparedStatementProxys() {
+        @SuppressWarnings("unchecked")
+        List<PreparedStatementProxy> clone = getPereparedStatements();
+        for (PreparedStatementProxy proxy : clone) {
+            try {
+                proxy.close();
+            } catch (SQLException ex) {
+                LOG.error("Fehler bei prepared Statement close", ex);
+            }
+        }
+        preparedHash.clear();
+    }
 
-	public void closeAllOpenStatementProxys() {
-		Vector<StatementProxy> clone = getStatements();
-		for (StatementProxy proxy : clone) {
-			try {
-				proxy.close();
-			} catch (SQLException ex) {
+    public void closeAllOpenCallableStatementProxys() {
+        List<CallableStatementProxy> clone = getCallableStatements();
+        for (CallableStatementProxy proxy : clone) {
+            try {
+                proxy.close();
+            } catch (SQLException ex) {
+                LOG.error("Fehler bei CallableStatement close", ex);
+            }
+        }
+    }
 
-			}
-		}
-	}
+    public void closeAllOpenStatementProxys() {
+        List<StatementProxy> clone = getStatements();
+        for (StatementProxy proxy : clone) {
+            try {
+                proxy.close();
+            } catch (SQLException ex) {
+                LOG.error("Fehler bei Statement close", ex);
+            }
+        }
+    }
 
-	public void closeAllOpenResultSetProxys() {
-		@SuppressWarnings("unchecked")
-		Vector<ResultSetProxy> clone = getResultSets();
-		for (ResultSetProxy proxy : clone) {
-			try {
-				proxy.close();
-			} catch (SQLException ex) {
+    public void closeAllOpenResultSetProxys() {
+        @SuppressWarnings("unchecked")
+        List<ResultSetProxy> clone = getResultSets();
+        for (ResultSetProxy proxy : clone) {
+            try {
+                proxy.close();
+            } catch (SQLException ex) {
+                LOG.error("Fehler bei ResultSet close", ex);
+            }
+        }
+    }
 
-			}
-		}
-	}
+    public void closeAllKindsOfProxys() {
+        closeAllOpenResultSetProxys();
+        closeAllOpenStatementProxys();
+        closeAllOpenCallableStatementProxys();
+        closeAllOpenPreparedStatementProxys();
+    }
 
-	public void closeAllKindsOfProxys() {
-		closeAllOpenResultSetProxys();
-		closeAllOpenStatementProxys();
-		closeAllOpenCallableStatementProxys();
-		closeAllOpenPreparedStatementProxys();
-	}
+    public boolean isWithoutOpenResultSets() {
+        return resultSets.size() == 0;
+    }
 
-	public boolean isWithoutOpenResultSets() {
-		return resultSets.size() == 0;
-	}
+    public Connection getOriginalConnection() {
+        return original;
+    }
 
-	public Connection getOriginalConnection() {
-		return original;
-	}
+    public Connection getConnection() {
+        return this;
+    }
 
-	public Connection getConnection() {
-		return this;
-	}
+    class CollectElements<K> implements ActionOnObject<K> {
+        private List<K> elements = new ArrayList<K>();
 
-	class CollectElements<K> implements ActionOnObject<K> {
-		private Vector<K> elements = new Vector<K>();
+        @Override
+        public void perform(K obj) {
+            elements.add(obj);
+        }
 
-		@Override
-		public void perform(K obj) {
-			elements.addElement(obj);
-		}
+        public List<K> getElements() {
+            return elements;
+        }
 
-		public Vector<K> getElements() {
-			return elements;
-		}
+    }
 
-	}
+    class LogAction<H> implements ActionOnObject<H> {
 
-	class LogAction<H> implements ActionOnObject<H> {
+        @Override
+        public void perform(Object obj) {
+            LOG.debug(obj.toString());
 
-		@Override
-		public void perform(Object obj) {
-			log.debug(obj.toString());
+        }
 
-		}
+    }
 
-	}
+    public void showPreparedStatementProxys() {
+        if (LOG.isDebugEnabled()) {
+            @SuppressWarnings("unchecked")
+            List<PreparedStatementProxy> clone = getPereparedStatements();
+            for (PreparedStatementProxy proxy : clone) {
+                LOG.debug(proxy.getStmtString());
+            }
+        }
+    }
 
-	public void showPreparedStatementProxys() {
-		if (log.isDebugEnabled()) {
-			@SuppressWarnings("unchecked")
-			Vector<PreparedStatementProxy> clone = getPereparedStatements();
-			for (PreparedStatementProxy proxy : clone) {
-				log.debug(proxy.getStmtString());
-			}
-		}
-	}
+    public void log() {
+        LOG.debug("open prepared statements: " + preparedStatements.size());
+        LOG.debug("open callable statements: " + callableStatements.size());
+        LOG.debug("open statements: " + statements.size());
 
-	public void log() {
-		log.debug("open prepared statements: " + preparedStatements.size());
-		log.debug("open callable statements: " + callableStatements.size());
-		log.debug("open statements: " + statements.size());
+        LogAction<ResultSetProxy> logger = new LogAction<ResultSetProxy>();
+        resultSets.perform(logger);
 
-		LogAction<ResultSetProxy> logger = new LogAction<ResultSetProxy>();
-		resultSets.perform(logger);
+    }
 
-	}
-
-	public void connect() throws SQLException {
-		original = pool.createOriginal();
-	}
+    public void connect() throws SQLException {
+        original = pool.createOriginal();
+    }
 
 }

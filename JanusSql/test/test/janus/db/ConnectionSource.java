@@ -16,19 +16,19 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 public class ConnectionSource {
 	private static DataSource dataSource = null;
 
-	public static void init() throws Exception {
+	public static void init() throws ClassNotFoundException  {
 		Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
 
 		GenericObjectPool connectionPool = new GenericObjectPool(null);
 		DriverManagerConnectionFactory connectionFactory = new DriverManagerConnectionFactory(
 				"jdbc:derby:mybase1;create=true", null);
-		PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(
+		new PoolableConnectionFactory(
 				connectionFactory, connectionPool, null, null, false, true);
 		dataSource = new PoolingDataSource(connectionPool);
 
 	}
 
-	public static DataSource getDataSource() throws Exception {
+	public static DataSource getDataSource() throws ClassNotFoundException {
 		if (dataSource == null) {
 			init();
 		}

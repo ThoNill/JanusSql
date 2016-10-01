@@ -5,8 +5,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 public class SqlRun {
-	public Connection con;
-	public Statement statement;
-	public ResultSet result;
+    public Connection con;
+    public Statement statement;
+    public ResultSet result;
 
 }

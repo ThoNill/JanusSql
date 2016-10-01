@@ -12,127 +12,129 @@ import org.apache.log4j.Logger;
 import org.janus.pool.ShivaPool;
 
 public class ConnectionProxyPool extends ShivaPool<ConnectionProxy> implements
-		DBPool , DataSource {
-	static Logger log = Logger.getLogger("ConnectionProxyPool");
+        DBPool, DataSource {
+    static Logger log = Logger.getLogger("ConnectionProxyPool");
 
-	static HashMap<String, ConnectionProxyPool> pools = new HashMap<String, ConnectionProxyPool>();
+    static HashMap<String, ConnectionProxyPool> pools = new HashMap<String, ConnectionProxyPool>();
 
-	private String resName;
-	private PrintWriter logWriter = null;
-	private int timeout;
-	
-	
-	private ConnectionProxyPool(int normalCount, int maxCount, String name) {
-		this(normalCount, maxCount, name,new ConnectionProxyFabric(name));
-	}
-	
-	private ConnectionProxyPool(int normalCount, int maxCount, String name, ConnectionProxyFabric fabric) {
-		super(normalCount, maxCount, fabric);
-		((ConnectionProxyFabric) shiva).setPool(this);
-		this.resName = name;
-		log.debug("erzeuge ConnectionProxyPool " + name);
-	}
+    private String resName;
+    private PrintWriter logWriter = null;
+    private int timeout;
 
-	public String getResName() {
-		return resName;
-	}
-	
-	public static synchronized ConnectionProxy getConnection(String name,ConnectionProxyFabric fabric) {
-		ConnectionProxyPool pool = pools.get(name);
-		if (pool == null) {
-			pool = new ConnectionProxyPool(5, 20, name,fabric);
-			pools.put(name, pool);
-		}
-		return pool.create();
-	}
+    private ConnectionProxyPool(int normalCount, int maxCount, String name) {
+        this(normalCount, maxCount, name, new ConnectionProxyFabric(name));
+    }
 
-	public static synchronized ConnectionProxy getConnection(String name) {
-		ConnectionProxyPool pool = pools.get(name);
-		if (pool == null) {
-			pool = new ConnectionProxyPool(5, 20, name);
-			pools.put(name, pool);
-		}
-		return pool.create();
-	}
+    private ConnectionProxyPool(int normalCount, int maxCount, String name,
+            ConnectionProxyFabric fabric) {
+        super(normalCount, maxCount, fabric);
+        ((ConnectionProxyFabric) shiva).setPool(this);
+        this.resName = name;
+        log.debug("erzeuge ConnectionProxyPool " + name);
+    }
 
-	public static synchronized void shutdown() {
-		for (String key : pools.keySet()) {
-			ConnectionProxyPool pool = pools.get(key);
-			pool.destroyAll();
-		}
-		pools.clear();
-	}
+    @Override
+    public String getResName() {
+        return resName;
+    }
 
-	public static void destroyAllConnections() {
-		for (ConnectionProxyPool p : pools.values()) {
-			p.destroyAll();
-		}
-	}
+    public static synchronized ConnectionProxy getConnection(String name,
+            ConnectionProxyFabric fabric) {
+        ConnectionProxyPool pool = pools.get(name);
+        if (pool == null) {
+            pool = new ConnectionProxyPool(5, 20, name, fabric);
+            pools.put(name, pool);
+        }
+        return pool.create();
+    }
 
-	public static void info() {
-		for (ConnectionProxyPool p : pools.values()) {
-			p.infoForPool();
-		}
-	}
+    public static synchronized ConnectionProxy getConnection(String name) {
+        ConnectionProxyPool pool = pools.get(name);
+        if (pool == null) {
+            pool = new ConnectionProxyPool(5, 20, name);
+            pools.put(name, pool);
+        }
+        return pool.create();
+    }
 
-	private void infoForPool() {
-		if (log.isDebugEnabled()) {
-			log.debug("Pool: " + resName + " Active Count: " + getActiveCount()
-					+ " Inactive Count: " + getInActiveCount());
-		}
-	}
+    public static synchronized void shutdown() {
+        for (String key : pools.keySet()) {
+            ConnectionProxyPool pool = pools.get(key);
+            pool.destroyAll();
+        }
+        pools.clear();
+    }
 
-	@Override
-	public Connection createOriginal() throws SQLException {
-		return ((ConnectionProxyFabric) shiva).makeConnection();
-	}
+    public static void destroyAllConnections() {
+        for (ConnectionProxyPool p : pools.values()) {
+            p.destroyAll();
+        }
+    }
 
-	@Override
-	public PrintWriter getLogWriter() throws SQLException {
-		return logWriter;
-	}
+    public static void info() {
+        for (ConnectionProxyPool p : pools.values()) {
+            p.infoForPool();
+        }
+    }
 
-	@Override
-	public void setLogWriter(PrintWriter out) throws SQLException {
-		logWriter = out;
-		
-	}
+    private void infoForPool() {
+        if (log.isDebugEnabled()) {
+            log.debug("Pool: " + resName + " Active Count: " + getActiveCount()
+                    + " Inactive Count: " + getInActiveCount());
+        }
+    }
 
-	@Override
-	public void setLoginTimeout(int seconds) throws SQLException {
-		timeout = seconds;
-		
-	}
+    @Override
+    public Connection createOriginal() throws SQLException {
+        return ((ConnectionProxyFabric) shiva).makeConnection();
+    }
 
-	@Override
-	public int getLoginTimeout() throws SQLException {
-		return timeout;
-	}
+    @Override
+    public PrintWriter getLogWriter() throws SQLException {
+        return logWriter;
+    }
 
-	@Override
-	public java.util.logging.Logger getParentLogger()
-			throws SQLFeatureNotSupportedException {
-		return null;
-	}
+    @Override
+    public void setLogWriter(PrintWriter out) throws SQLException {
+        logWriter = out;
 
-	@Override
-	public <T> T unwrap(Class<T> iface) throws SQLException {
-		return null;
-	}
+    }
 
-	@Override
-	public boolean isWrapperFor(Class<?> iface) throws SQLException {
-		return false;
-	}
+    @Override
+    public void setLoginTimeout(int seconds) throws SQLException {
+        timeout = seconds;
 
-	@Override
-	public Connection getConnection() throws SQLException {
-		return getConnection(resName);
-	}
+    }
 
-	@Override
-	public Connection getConnection(String username, String password)
-			throws SQLException {
-		return null;
-	}
+    @Override
+    public int getLoginTimeout() throws SQLException {
+        return timeout;
+    }
+
+    @Override
+    public java.util.logging.Logger getParentLogger()
+            throws SQLFeatureNotSupportedException {
+        return null;
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        return getConnection(resName);
+    }
+
+    @Override
+    public Connection getConnection(String username, String password)
+            throws SQLException {
+        return null;
+    }
 }
