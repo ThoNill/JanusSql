@@ -68,7 +68,7 @@ public class ConnectionProxyFabric implements ShivaFabric<ConnectionProxy> {
 
     @Override
     public boolean isAlive(ConnectionProxy obj) {
-        if (connectOkTestSql == null) {
+        if (connectOkTestSql == null || "".equals(connectOkTestSql.trim())) {
             return true;
         }
         try {
